@@ -1,0 +1,1605 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Absensi Santri - Ponpes Maslakunnidzom</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #0a1a12;
+      --bg2: #0f291c;
+      --fg: #e8f5e9;
+      --muted: #7da88a;
+      --accent: #2e7d32;
+      --accent-lt: #4caf50;
+      --gold: #c9a84c;
+      --gold-lt: #e0c068;
+      --border: #1b3d2a;
+      --border-lt: #2a5e3f;
+      --st-h: #4caf50;
+      --st-s: #ff9800;
+      --st-i: #42a5f5;
+      --st-a: #ef5350;
+      --st-t: #ab47bc;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      min-height: 100vh;
+      overflow-x: hidden
+    }
+
+    .bg-fx {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background: radial-gradient(ellipse 800px 600px at 20% 10%, rgba(46, 125, 50, .12) 0%, transparent 60%),
+        radial-gradient(ellipse 600px 500px at 80% 80%, rgba(201, 168, 76, .08) 0%, transparent 60%)
+    }
+
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-image: linear-gradient(rgba(46, 125, 50, .04) 1px, transparent 1px), linear-gradient(90deg, rgba(46, 125, 50, .04) 1px, transparent 1px);
+      background-size: 60px 60px
+    }
+
+    .orn {
+      position: fixed;
+      z-index: 0;
+      pointer-events: none;
+      opacity: .06
+    }
+
+    .orn1 {
+      top: -80px;
+      right: -80px;
+      width: 400px;
+      height: 400px;
+      border: 2px solid var(--gold);
+      border-radius: 50%
+    }
+
+    .orn2 {
+      top: -40px;
+      right: -40px;
+      width: 320px;
+      height: 320px;
+      border: 2px solid var(--gold);
+      transform: rotate(45deg)
+    }
+
+    .orn3 {
+      bottom: -100px;
+      left: -100px;
+      width: 500px;
+      height: 500px;
+      border: 2px solid var(--accent-lt);
+      border-radius: 50%
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 1
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(201, 168, 76, .1);
+      border: 1px solid rgba(201, 168, 76, .25);
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: .75rem;
+      color: var(--gold-lt);
+      letter-spacing: .08em;
+      text-transform: uppercase
+    }
+
+    .title-main {
+      font-family: 'Amiri Quran', serif;
+      font-size: clamp(1.5rem, 4vw, 2.6rem);
+      color: var(--gold-lt);
+      line-height: 1.3;
+      text-shadow: 0 0 40px rgba(201, 168, 76, .15);
+      animation: glow 4s ease-in-out infinite
+    }
+
+    @keyframes glow {
+
+      0%,
+      100% {
+        text-shadow: 0 0 40px rgba(201, 168, 76, .15)
+      }
+
+      50% {
+        text-shadow: 0 0 60px rgba(201, 168, 76, .25)
+      }
+    }
+
+    .title-sub {
+      font-size: .95rem;
+      color: var(--muted);
+      font-weight: 300
+    }
+
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: border-color .3s
+    }
+
+    .card:hover {
+      border-color: var(--border-lt)
+    }
+
+    .card-h {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .card-h i {
+      color: var(--accent-lt);
+      font-size: .95rem
+    }
+
+    .card-h span {
+      font-weight: 600;
+      font-size: .88rem
+    }
+
+    .card-body {
+      padding: 20px
+    }
+
+    .lbl {
+      display: block;
+      font-size: .72rem;
+      font-weight: 500;
+      color: var(--muted);
+      margin-bottom: 5px;
+      letter-spacing: .04em;
+      text-transform: uppercase
+    }
+
+    .inp,
+    .sel {
+      width: 100%;
+      padding: 10px 14px;
+      background: rgba(10, 26, 18, .7);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--fg);
+      font-family: inherit;
+      font-size: .9rem;
+      outline: none;
+      transition: border-color .25s, box-shadow .25s
+    }
+
+    .inp:focus,
+    .sel:focus {
+      border-color: var(--accent-lt);
+      box-shadow: 0 0 0 3px rgba(76, 175, 80, .15)
+    }
+
+    .sel option {
+      background: var(--bg2);
+      color: var(--fg)
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 22px;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: .85rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform .2s, box-shadow .2s, filter .2s
+    }
+
+    .btn:active {
+      transform: translateY(0) !important
+    }
+
+    .btn-p {
+      background: linear-gradient(135deg, var(--accent), #1b5e20);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(46, 125, 50, .3)
+    }
+
+    .btn-p:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 30px rgba(46, 125, 50, .45);
+      filter: brightness(1.1)
+    }
+
+    .btn-p:disabled {
+      opacity: .35;
+      cursor: not-allowed;
+      transform: none !important;
+      filter: none !important;
+      box-shadow: none !important
+    }
+
+    .btn-g {
+      background: linear-gradient(135deg, var(--gold), #a08030);
+      color: #1a1a0a;
+      font-weight: 700;
+      font-size: .92rem;
+      padding: 14px 32px;
+      box-shadow: 0 4px 20px rgba(201, 168, 76, .3)
+    }
+
+    .btn-g:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 35px rgba(201, 168, 76, .45);
+      filter: brightness(1.1)
+    }
+
+    .btn-o {
+      background: transparent;
+      color: var(--st-i);
+      border: 1px solid rgba(66, 165, 245, .3);
+      padding: 9px 16px;
+      font-size: .8rem
+    }
+
+    .btn-o:hover {
+      background: rgba(66, 165, 245, .08);
+      border-color: var(--st-i)
+    }
+
+    .btn-sm {
+      padding: 7px 14px;
+      font-size: .78rem;
+      border-radius: 8px
+    }
+
+    .btn-back {
+      background: transparent;
+      color: var(--muted);
+      border: none;
+      padding: 8px 12px;
+      font-size: .82rem;
+      gap: 6px
+    }
+
+    .btn-back:hover {
+      color: var(--fg)
+    }
+
+    .btn-danger {
+      background: transparent;
+      color: var(--st-a);
+      border: 1px solid rgba(239, 83, 80, .25);
+      padding: 9px 16px;
+      font-size: .8rem
+    }
+
+    .btn-danger:hover {
+      background: rgba(239, 83, 80, .08);
+      border-color: var(--st-a)
+    }
+
+    .resume-banner {
+      background: rgba(201, 168, 76, .08);
+      border: 1px solid rgba(201, 168, 76, .2);
+      border-radius: 14px;
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      animation: fadeUp .5s ease-out
+    }
+
+    .resume-banner h3 {
+      color: var(--gold-lt);
+      font-size: .95rem;
+      margin-bottom: 4px
+    }
+
+    .resume-banner p {
+      color: var(--muted);
+      font-size: .8rem;
+      line-height: 1.5
+    }
+
+    .drop {
+      border: 2px dashed var(--border-lt);
+      border-radius: 14px;
+      padding: 36px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all .3s;
+      background: rgba(10, 26, 18, .3)
+    }
+
+    .drop:hover,
+    .drop.over {
+      border-color: var(--accent-lt);
+      background: rgba(46, 125, 50, .06)
+    }
+
+    .drop.ok {
+      border-color: var(--accent-lt);
+      border-style: solid;
+      background: rgba(46, 125, 50, .08)
+    }
+
+    .drop-ic {
+      font-size: 2rem;
+      color: var(--border-lt);
+      margin-bottom: 10px;
+      transition: color .3s
+    }
+
+    .drop:hover .drop-ic,
+    .drop.over .drop-ic,
+    .drop.ok .drop-ic {
+      color: var(--accent-lt)
+    }
+
+    .drop-txt {
+      font-size: .82rem;
+      color: var(--muted);
+      line-height: 1.6
+    }
+
+    .drop-txt strong {
+      color: var(--accent-lt)
+    }
+
+    .drop-file {
+      margin-top: 10px;
+      padding: 7px 14px;
+      background: rgba(46, 125, 50, .15);
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .8rem;
+      color: var(--fg)
+    }
+
+    .drop-rm {
+      margin-left: 6px;
+      color: var(--st-a);
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-size: .85rem;
+      transition: transform .2s
+    }
+
+    .drop-rm:hover {
+      transform: scale(1.2)
+    }
+
+    /* ===== CALENDAR ===== */
+    .cal {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 3px;
+      max-width: 320px;
+      margin: 0 auto
+    }
+
+    .cal-hd {
+      text-align: center;
+      font-size: .58rem;
+      color: var(--muted);
+      padding: 3px;
+      font-weight: 600;
+      letter-spacing: .03em
+    }
+
+    .cal-d {
+      text-align: center;
+      padding: 8px 2px 10px;
+      border-radius: 7px;
+      font-size: .78rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .2s;
+      position: relative;
+      color: var(--fg);
+      user-select: none
+    }
+
+    .cal-d:hover {
+      background: rgba(46, 125, 50, .15)
+    }
+
+    .cal-d.cur {
+      background: var(--accent) !important;
+      color: #fff !important;
+      font-weight: 700;
+      box-shadow: 0 2px 12px rgba(46, 125, 50, .4)
+    }
+
+    .cal-d.we {
+      color: #ff9800
+    }
+
+    .cal-d.cur.we {
+      color: #fff
+    }
+
+    .cal-d.empty {
+      cursor: default
+    }
+
+    .cal-d.partial::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--gold)
+    }
+
+    .cal-d.done::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent-lt)
+    }
+
+    .cal-d.cur.partial::after {
+      background: rgba(255, 255, 255, .55);
+      width: 5px;
+      height: 5px
+    }
+
+    .cal-d.cur.done::after {
+      background: #fff
+    }
+
+    .cal-legend {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 10px
+    }
+
+    .cal-leg {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: .65rem;
+      color: var(--muted)
+    }
+
+    .cal-leg-d {
+      border-radius: 50%
+    }
+
+    .cal-leg-d.sm {
+      width: 5px;
+      height: 5px;
+      background: var(--gold)
+    }
+
+    .cal-leg-d.lg {
+      width: 7px;
+      height: 7px;
+      background: var(--accent-lt)
+    }
+
+    /* ===== STATUS BUTTONS ===== */
+    .st-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 9px;
+      border: 2px solid transparent;
+      font-weight: 700;
+      font-size: .82rem;
+      cursor: pointer;
+      transition: all .15s;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    .st-btn:active {
+      transform: scale(.88)
+    }
+
+    .st-btn:focus {
+      outline: 2px solid var(--accent-lt);
+      outline-offset: 2px
+    }
+
+    .st-h {
+      background: rgba(76, 175, 80, .08);
+      color: var(--st-h);
+      border-color: rgba(76, 175, 80, .2)
+    }
+
+    .st-h.on {
+      background: var(--st-h);
+      color: #fff;
+      border-color: var(--st-h);
+      transform: scale(1.08);
+      box-shadow: 0 2px 10px rgba(76, 175, 80, .4)
+    }
+
+    .st-s {
+      background: rgba(255, 152, 0, .08);
+      color: var(--st-s);
+      border-color: rgba(255, 152, 0, .2)
+    }
+
+    .st-s.on {
+      background: var(--st-s);
+      color: #fff;
+      border-color: var(--st-s);
+      transform: scale(1.08);
+      box-shadow: 0 2px 10px rgba(255, 152, 0, .4)
+    }
+
+    .st-i {
+      background: rgba(66, 165, 245, .08);
+      color: var(--st-i);
+      border-color: rgba(66, 165, 245, .2)
+    }
+
+    .st-i.on {
+      background: var(--st-i);
+      color: #fff;
+      border-color: var(--st-i);
+      transform: scale(1.08);
+      box-shadow: 0 2px 10px rgba(66, 165, 245, .4)
+    }
+
+    .st-a {
+      background: rgba(239, 83, 80, .08);
+      color: var(--st-a);
+      border-color: rgba(239, 83, 80, .2)
+    }
+
+    .st-a.on {
+      background: var(--st-a);
+      color: #fff;
+      border-color: var(--st-a);
+      transform: scale(1.08);
+      box-shadow: 0 2px 10px rgba(239, 83, 80, .4)
+    }
+
+    .st-t {
+      background: rgba(171, 71, 188, .08);
+      color: var(--st-t);
+      border-color: rgba(171, 71, 188, .2)
+    }
+
+    .st-t.on {
+      background: var(--st-t);
+      color: #fff;
+      border-color: var(--st-t);
+      transform: scale(1.08);
+      box-shadow: 0 2px 10px rgba(171, 71, 188, .4)
+    }
+
+    /* ===== ABSEN LIST ===== */
+    .ab-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--border);
+      transition: background .15s
+    }
+
+    .ab-row:hover {
+      background: rgba(46, 125, 50, .04)
+    }
+
+    .ab-row:last-child {
+      border-bottom: none
+    }
+
+    .ab-no {
+      width: 26px;
+      flex-shrink: 0;
+      font-size: .75rem;
+      color: var(--muted);
+      font-weight: 600;
+      text-align: center
+    }
+
+    .ab-info {
+      flex: 1;
+      min-width: 0
+    }
+
+    .ab-nim {
+      font-size: .63rem;
+      color: var(--muted)
+    }
+
+    .ab-nama {
+      font-weight: 600;
+      font-size: .82rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    .ab-prodi {
+      font-size: .66rem;
+      color: var(--muted);
+      display: none
+    }
+
+    @media(min-width:768px) {
+      .ab-prodi {
+        display: block
+      }
+    }
+
+    .ab-acts {
+      flex-shrink: 0;
+      display: flex;
+      gap: 3px
+    }
+
+    .prog-bar {
+      height: 6px;
+      background: rgba(46, 125, 50, .12);
+      border-radius: 3px;
+      overflow: hidden
+    }
+
+    .prog-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-lt));
+      border-radius: 3px;
+      transition: width .4s ease
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 12px;
+      border-radius: 7px;
+      font-size: .75rem;
+      font-weight: 600
+    }
+
+    /* ===== FINAL TABLE ===== */
+    .tbl-wrap {
+      overflow: auto;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      max-height: 560px
+    }
+
+    .tbl-wrap::-webkit-scrollbar {
+      height: 7px;
+      width: 7px
+    }
+
+    .tbl-wrap::-webkit-scrollbar-track {
+      background: var(--bg2)
+    }
+
+    .tbl-wrap::-webkit-scrollbar-thumb {
+      background: var(--border-lt);
+      border-radius: 4px
+    }
+
+    .ftbl {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .68rem
+    }
+
+    .ftbl thead th {
+      background: rgba(46, 125, 50, .15);
+      color: var(--gold-lt);
+      font-weight: 600;
+      padding: 7px 3px;
+      border: 1px solid var(--border);
+      text-align: center;
+      white-space: nowrap;
+      position: sticky;
+      top: 0;
+      z-index: 2
+    }
+
+    .ftbl thead tr:first-child th {
+      background: rgba(201, 168, 76, .1);
+      font-size: .76rem;
+      padding: 10px 4px
+    }
+
+    .ftbl tbody td {
+      padding: 6px 3px;
+      border: 1px solid var(--border);
+      text-align: center;
+      color: var(--fg);
+      background: rgba(10, 26, 18, .4)
+    }
+
+    .ftbl tbody td.tl {
+      text-align: left;
+      padding-left: 7px;
+      font-weight: 500;
+      white-space: nowrap
+    }
+
+    .ftbl tbody td.tl2 {
+      text-align: left;
+      padding-left: 7px;
+      font-size: .63rem;
+      color: var(--muted);
+      white-space: nowrap
+    }
+
+    .ftbl tbody tr:hover td {
+      background: rgba(46, 125, 50, .06)
+    }
+
+    .ftbl tbody tr:nth-child(even) td {
+      background: rgba(15, 41, 28, .25)
+    }
+
+    .ftbl tbody tr:nth-child(even):hover td {
+      background: rgba(46, 125, 50, .08)
+    }
+
+    .c-h {
+      background: rgba(76, 175, 80, .18) !important;
+      color: #66bb6a !important;
+      font-weight: 700
+    }
+
+    .c-s {
+      background: rgba(255, 152, 0, .18) !important;
+      color: #ffa726 !important;
+      font-weight: 700
+    }
+
+    .c-i {
+      background: rgba(66, 165, 245, .18) !important;
+      color: #64b5f6 !important;
+      font-weight: 700
+    }
+
+    .c-a {
+      background: rgba(239, 83, 80, .18) !important;
+      color: #ef5350 !important;
+      font-weight: 700
+    }
+
+    .c-t {
+      background: rgba(171, 71, 188, .18) !important;
+      color: #ce93d8 !important;
+      font-weight: 700
+    }
+
+    .c-rk {
+      font-weight: 700
+    }
+
+    .leg {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: .66rem;
+      color: var(--muted)
+    }
+
+    .leg-d {
+      width: 9px;
+      height: 9px;
+      border-radius: 3px
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      z-index: 999;
+      padding: 13px 22px;
+      background: var(--bg2);
+      border: 1px solid var(--accent-lt);
+      border-radius: 12px;
+      color: var(--fg);
+      font-size: .83rem;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, .5);
+      transform: translateY(120px);
+      opacity: 0;
+      transition: transform .4s cubic-bezier(.34, 1.56, .64, 1), opacity .3s;
+      max-width: 90vw
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1
+    }
+
+    .toast.err {
+      border-color: var(--st-a)
+    }
+
+    .toast.err i {
+      color: var(--st-a)
+    }
+
+    .toast.warn {
+      border-color: var(--st-s)
+    }
+
+    .toast.warn i {
+      color: var(--st-s)
+    }
+
+    .toast i {
+      color: var(--accent-lt);
+      font-size: 1.05rem;
+      flex-shrink: 0
+    }
+
+    .phase {
+      animation: fadeUp .45s ease-out both
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    .stbl {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .73rem
+    }
+
+    .stbl th {
+      background: rgba(201, 168, 76, .1);
+      color: var(--gold-lt);
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      text-align: left;
+      font-weight: 600
+    }
+
+    .stbl td {
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-style: italic
+    }
+
+    .qbar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center
+    }
+
+    .day-nav {
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .day-nav-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 9px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--fg);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .2s;
+      font-size: .85rem
+    }
+
+    .day-nav-btn:hover {
+      background: rgba(46, 125, 50, .1);
+      border-color: var(--accent-lt)
+    }
+
+    .day-nav-btn:disabled {
+      opacity: .25;
+      cursor: not-allowed;
+      background: transparent !important;
+      border-color: var(--border) !important
+    }
+
+    .ab-list {
+      max-height: calc(100vh - 440px);
+      min-height: 200px;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg2)
+    }
+
+    .ab-list::-webkit-scrollbar {
+      width: 6px
+    }
+
+    .ab-list::-webkit-scrollbar-track {
+      background: var(--bg2)
+    }
+
+    .ab-list::-webkit-scrollbar-thumb {
+      background: var(--border-lt);
+      border-radius: 3px
+    }
+
+    .save-ind {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 100;
+      padding: 6px 14px;
+      border-radius: 8px;
+      background: rgba(46, 125, 50, .9);
+      color: #fff;
+      font-size: .72rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: opacity .3s, transform .3s;
+      pointer-events: none
+    }
+
+    .save-ind.show {
+      opacity: 1;
+      transform: translateY(0)
+    }
+
+    @media(max-width:640px) {
+      .fgrid2 {
+        grid-template-columns: 1fr !important
+      }
+
+      .ab-acts {
+        gap: 2px
+      }
+
+      .st-btn {
+        width: 32px;
+        height: 32px;
+        font-size: .72rem;
+        border-radius: 7px
+      }
+
+      .ab-list {
+        max-height: calc(100vh - 480px)
+      }
+
+      .resume-banner {
+        padding: 16px
+      }
+
+      .cal {
+        max-width: 280px
+      }
+    }
+
+    @media(prefers-reduced-motion:reduce) {
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg-fx"></div>
+  <div class="bg-grid"></div>
+  <div class="orn orn1"></div>
+  <div class="orn orn2"></div>
+  <div class="orn orn3"></div>
+  <div class="save-ind" id="saveInd"><i class="fas fa-check"></i> Tersimpan</div>
+  <div class="wrap">
+
+    <!-- ====== PHASE 1: SETUP ====== -->
+    <div id="ph1" class="phase">
+      <header class="pt-8 pb-5 px-5 text-center">
+        <div class="badge mb-3"><i class="fas fa-mosque"></i> Pondok Pesantren Maslakunnidzom</div>
+        <h1 class="title-main mb-1">ABSENSI SANTRI</h1>
+        <p class="title-sub">Ponpes Maslakunnidzom &mdash; Angkatan 2024</p>
+      </header>
+      <main class="max-w-3xl mx-auto px-4 pb-12">
+        <div id="resumeBanner" style="display:none">
+          <div class="resume-banner">
+            <div style="display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap">
+              <div style="flex-shrink:0;width:42px;height:42px;border-radius:10px;background:rgba(201,168,76,.15);
+                        display:flex;align-items:center;justify-content:center">
+                <i class="fas fa-history" style="color:var(--gold-lt);font-size:1.1rem"></i>
+              </div>
+              <div style="flex:1;min-width:200px">
+                <h3><i class="fas fa-save" style="margin-right:4px;font-size:.8rem"></i> Sesi Sebelumnya Ditemukan</h3>
+                <p id="resumeInfo"></p>
+              </div>
+              <div style="display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap">
+                <button class="btn btn-p btn-sm" onclick="resumeSession()"><i class="fas fa-play"></i>
+                  Lanjutkan</button>
+                <button class="btn btn-danger btn-sm" onclick="clearSession()"><i class="fas fa-trash-alt"></i> Hapus &
+                  Baru</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <section class="card mb-4">
+          <div class="card-h"><i class="fas fa-calendar-alt"></i><span>Periode Absensi</span></div>
+          <div class="card-body">
+            <div class="fgrid2" style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+              <div><label class="lbl" for="inTahun">Tahun</label><input type="number" id="inTahun" class="inp"
+                  value="2025" min="2020" max="2100"></div>
+              <div><label class="lbl" for="inBulan">Bulan</label>
+                <select id="inBulan" class="sel">
+                  <option value="1">Januari</option>
+                  <option value="2">Februari</option>
+                  <option value="3">Maret</option>
+                  <option value="4">April</option>
+                  <option value="5">Mei</option>
+                  <option value="6">Juni</option>
+                  <option value="7">Juli</option>
+                  <option value="8" selected>Agustus</option>
+                  <option value="9">September</option>
+                  <option value="10">Oktober</option>
+                  <option value="11">November</option>
+                  <option value="12">Desember</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section class="card mb-5">
+          <div class="card-h" style="justify-content:space-between;flex-wrap:wrap;gap:6px">
+            <div style="display:flex;align-items:center;gap:10px"><i class="fas fa-file-upload"></i><span>Data
+                Santri</span></div>
+            <button class="btn btn-o btn-sm" onclick="dlTemplate()"><i class="fas fa-download"></i> Download
+              Template</button>
+          </div>
+          <div class="card-body">
+            <div class="drop" id="dz" role="button" tabindex="0" aria-label="Upload file data santri">
+              <input type="file" id="fi" accept=".csv,.xlsx,.xls" style="display:none">
+              <div id="dzC">
+                <div class="drop-ic"><i class="fas fa-cloud-upload-alt"></i></div>
+                <div class="drop-txt">Seret file ke sini, atau <strong>klik untuk pilih file</strong><br>Format:
+                  <strong>.CSV</strong> atau <strong>.XLSX</strong></div>
+              </div>
+            </div>
+            <div id="fInfo" style="display:none;margin-top:14px"></div>
+            <details style="margin-top:16px;cursor:pointer">
+              <summary style="font-size:.76rem;color:var(--muted);user-select:none;outline:none">
+                <i class="fas fa-info-circle" style="color:var(--st-i);margin-right:3px"></i> Contoh format file
+              </summary>
+              <div style="margin-top:10px;overflow-x:auto;border-radius:8px;border:1px solid var(--border)">
+                <table class="stbl">
+                  <thead>
+                    <tr>
+                      <th>NIM</th>
+                      <th>NAMA SANTRI</th>
+                      <th>PRODI</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>2024001</td>
+                      <td>Ahmad Fauzan</td>
+                      <td>Tafsir Hadits</td>
+                    </tr>
+                    <tr>
+                      <td>2024002</td>
+                      <td>Muhammad Rizki</td>
+                      <td>Ilmu Al-Qur'an</td>
+                    </tr>
+                    <tr>
+                      <td>...</td>
+                      <td>...</td>
+                      <td>...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </details>
+            <div style="margin-top:20px">
+              <button class="btn btn-p" id="btnGen" onclick="startAbsensi()" disabled>
+                <i class="fas fa-play"></i> Generate Sistem Absensi
+              </button>
+              <span id="genH" style="font-size:.76rem;color:var(--muted);opacity:.5;margin-left:10px">Upload file
+                terlebih dahulu</span>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- ====== PHASE 2: ABSENSI ====== -->
+    <div id="ph2" style="display:none">
+      <div
+        style="position:sticky;top:0;z-index:50;background:rgba(10,26,18,.92);border-bottom:1px solid var(--border);padding:10px 16px;backdrop-filter:blur(12px)">
+        <div
+          style="max-w-5xl mx-auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <button class="btn btn-back" onclick="goBack()"><i class="fas fa-arrow-left"></i> Kembali</button>
+          <span style="font-size:.82rem;font-weight:600;color:var(--gold-lt)"><i class="fas fa-mosque"
+              style="margin-right:4px"></i> Sistem Absensi</span>
+        </div>
+      </div>
+      <main class="max-w-5xl mx-auto px-4 py-5">
+        <div class="card mb-4">
+          <div class="card-body" style="padding:14px 18px">
+            <div
+              style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px">
+              <span id="progTxt" style="font-size:.78rem;color:var(--muted)"></span>
+              <span id="progPct" style="font-size:.78rem;font-weight:700;color:var(--accent-lt)">0%</span>
+            </div>
+            <div class="prog-bar">
+              <div class="prog-fill" id="progFill" style="width:0%"></div>
+            </div>
+            <div id="statRow" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px"></div>
+          </div>
+        </div>
+        <div class="card mb-4">
+          <div class="card-h" style="justify-content:center;gap:14px">
+            <button class="day-nav-btn" id="prevDay" onclick="changeDay(-1)"><i
+                class="fas fa-chevron-left"></i></button>
+            <div style="text-align:center">
+              <div id="dayLabel" style="font-weight:700;font-size:1rem;color:var(--fg)"></div>
+              <div id="dayDate" style="font-size:.75rem;color:var(--muted)"></div>
+            </div>
+            <button class="day-nav-btn" id="nextDay" onclick="changeDay(1)"><i
+                class="fas fa-chevron-right"></i></button>
+          </div>
+          <div class="card-body" style="padding:12px 18px">
+            <div class="cal" id="calGrid"></div>
+            <div class="cal-legend">
+              <span class="cal-leg"><span class="cal-leg-d sm"></span> Mulai absen</span>
+              <span class="cal-leg"><span class="cal-leg-d lg"></span> Selesai lengkap</span>
+            </div>
+          </div>
+        </div>
+        <div class="qbar mb-3">
+          <button class="btn btn-sm"
+            style="background:rgba(76,175,80,.12);color:var(--st-h);border:1px solid rgba(76,175,80,.25)"
+            onclick="markAll('H')" aria-label="Tandai semua santri hadir">
+            <i class="fas fa-check-double"></i> Semua Hadir
+          </button>
+          <button class="btn btn-sm"
+            style="background:rgba(239,83,80,.08);color:var(--st-a);border:1px solid rgba(239,83,80,.2)"
+            onclick="resetDay()" aria-label="Reset absensi hari ini">
+            <i class="fas fa-eraser"></i> Reset Hari Ini
+          </button>
+          <div style="flex:1"></div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap">
+            <span class="leg"><span class="leg-d" style="background:var(--st-h)"></span>H</span>
+            <span class="leg"><span class="leg-d" style="background:var(--st-s)"></span>S</span>
+            <span class="leg"><span class="leg-d" style="background:var(--st-i)"></span>I</span>
+            <span class="leg"><span class="leg-d" style="background:var(--st-a)"></span>A</span>
+            <span class="leg"><span class="leg-d" style="background:var(--st-t)"></span>T</span>
+          </div>
+        </div>
+        <div class="ab-list" id="abList"></div>
+        <div style="display:flex;justify-content:center;gap:12px;margin-top:18px;flex-wrap:wrap">
+          <button class="btn btn-g" onclick="generateResult()"><i class="fas fa-table"></i> Generate Tabel
+            Absensi</button>
+        </div>
+        <p style="text-align:center;font-size:.7rem;color:var(--muted);margin-top:8px;opacity:.6">
+          <i class="fas fa-save" style="margin-right:3px"></i> Data tersimpan otomatis. Aman meski refresh atau tutup
+          browser.
+        </p>
+      </main>
+    </div>
+
+    <!-- ====== PHASE 3: HASIL ====== -->
+    <div id="ph3" style="display:none">
+      <div
+        style="position:sticky;top:0;z-index:50;background:rgba(10,26,18,.92);border-bottom:1px solid var(--border);padding:10px 16px;backdrop-filter:blur(12px)">
+        <div
+          style="max-w-7xl mx-auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <button class="btn btn-back" onclick="goToAbsensi()"><i class="fas fa-arrow-left"></i> Kembali ke
+            Absensi</button>
+          <span style="font-size:.82rem;font-weight:600;color:var(--gold-lt)"><i class="fas fa-file-excel"
+              style="margin-right:4px"></i> Hasil Absensi</span>
+        </div>
+      </div>
+      <main class="max-w-7xl mx-auto px-4 py-5">
+        <div id="resStats" class="mb-4" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+        <div class="card mb-5">
+          <div class="card-h"><i class="fas fa-eye"></i><span>Pratinjau Tabel Absensi</span></div>
+          <div class="card-body" style="padding:14px">
+            <div class="tbl-wrap" id="tblWrap"></div>
+          </div>
+        </div>
+        <div class="text-center pb-12">
+          <button class="btn btn-g" onclick="dlXlsx()"><i class="fas fa-file-download"></i> Unduh File Excel
+            (.xlsx)</button>
+          <p style="font-size:.72rem;color:var(--muted);margin-top:8px">File terunduh otomatis ke perangkat Anda</p>
+        </div>
+      </main>
+    </div>
+
+  </div>
+
+  <div class="toast" id="toast"><i class="fas fa-check-circle" id="toastIc"></i><span id="toastTx"></span></div>
+
+  <script>
+    /* ===== KONSTANTA ===== */
+    const BLN = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    const LS_KEY = 'absensi_maslakunnidzom_2024';
+
+    /* 5 kategori status */
+    const STATUS_LIST = [
+      { key: 'H', label: 'Hadir', color: 'var(--st-h)', cls: 'st-h', chip: 'rgba(76,175,80,.12)', icon: 'fa-check' },
+      { key: 'S', label: 'Sakit', color: 'var(--st-s)', cls: 'st-s', chip: 'rgba(255,152,0,.1)', icon: 'fa-thermometer-half' },
+      { key: 'I', label: 'Izin', color: 'var(--st-i)', cls: 'st-i', chip: 'rgba(66,165,245,.1)', icon: 'fa-envelope' },
+      { key: 'A', label: 'Alpa', color: 'var(--st-a)', cls: 'st-a', chip: 'rgba(239,83,80,.1)', icon: 'fa-user-times' },
+      { key: 'T', label: 'Tdk ada di kobong', color: 'var(--st-t)', cls: 'st-t', chip: 'rgba(171,71,188,.1)', icon: 'fa-fire' },
+    ];
+
+    /* ===== STATE ===== */
+    let santri = [], absen = {}, curDay = 1, tahun = 2025, bulan = 8, totalHari = 31, upFileName = '';
+
+    const $ = id => document.getElementById(id);
+    const dim = (y, m) => new Date(y, m, 0).getDate();
+    const dh = (y, m, d) => { const dayIdx = new Date(y, m - 1, d).getDay(); return HARI[dayIdx] || 'Minggu'; };
+    const esc = s => { const d = document.createElement('div'); d.textContent = s; return d.innerHTML };
+
+    /* ===== TOAST ===== */
+    function toast(m, t = '') {
+      const el = $('toast'), ic = $('toastIc'), tx = $('toastTx');
+      tx.textContent = m; el.className = 'toast' + (t ? ' ' + t : '');
+      ic.className = t === 'err' ? 'fas fa-exclamation-circle' : t === 'warn' ? 'fas fa-exclamation-triangle' : 'fas fa-check-circle';
+      el.classList.add('show'); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('show'), 3200);
+    }
+
+    /* ===== SAVE INDICATOR ===== */
+    let saveTimer = null, saveTimeoutId = null;
+    function flashSave() { const el = $('saveInd'); el.classList.add('show'); clearTimeout(saveTimer); saveTimer = setTimeout(() => el.classList.remove('show'), 1500); }
+
+    /* Debounce saveToLS untuk menghindari save terlalu sering */
+    function debouncedSave() {
+      clearTimeout(saveTimeoutId);
+      saveTimeoutId = setTimeout(saveToLS, 500);
+    }
+
+    /* ===== LOCALSTORAGE ===== */
+    function saveToLS() {
+      try { localStorage.setItem(LS_KEY, JSON.stringify({ santri, absen, curDay, tahun, bulan, totalHari, upFileName, savedAt: new Date().toISOString() })); flashSave(); }
+      catch (e) { console.warn('localStorage error:', e); toast('⚠️ Gagal menyimpan data (storage penuh?). Tutup browser dapat hilang data!', 'err'); }
+    }
+    function loadFromLS() { try { const r = localStorage.getItem(LS_KEY); return r ? JSON.parse(r) : null; } catch (e) { return null; } }
+    function clearLS() { localStorage.removeItem(LS_KEY); }
+
+    /* ===== PHASE NAV ===== */
+    function showPh(n) {
+      ['ph1', 'ph2', 'ph3'].forEach((id, i) => { const el = $(id); if (i + 1 === n) { el.style.display = ''; el.className = 'phase'; } else el.style.display = 'none'; });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function goBack() { showPh(1); checkResume(); }
+    function goToAbsensi() { showPh(2); }
+
+    /* ===== RESUME ===== */
+    function checkResume() {
+      const data = loadFromLS();
+      if (data && data.santri && data.santri.length > 0) {
+        const nm = BLN[data.bulan] || ''; let daysDone = 0, daysStarted = 0;
+        for (let d = 1; d <= data.totalHari; d++) { const dd = data.absen[String(d)] || {}; const cnt = Object.values(dd).filter(v => v).length; if (cnt > 0) daysStarted++; if (cnt === data.santri.length) daysDone++; }
+        const savedDate = data.savedAt ? new Date(data.savedAt) : null;
+        const timeStr = savedDate ? savedDate.toLocaleString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+        $('resumeInfo').innerHTML = `<strong>${data.santri.length} santri</strong> &mdash; ${nm} ${data.tahun} &mdash; <strong>${daysDone}/${data.totalHari}</strong> hari lengkap` + (daysStarted > daysDone ? ` &mdash; ${daysStarted - daysDone} hari belum lengkap` : '') + (timeStr ? ` &mdash; tersimpan ${timeStr}` : '');
+        $('resumeBanner').style.display = 'block';
+      } else { $('resumeBanner').style.display = 'none'; }
+    }
+    function resumeSession() {
+      const data = loadFromLS(); if (!data || !Array.isArray(data.santri) || data.santri.length === 0) { toast('Data sesi tidak ditemukan', 'err'); return; }
+      santri = data.santri; absen = data.absen || {}; curDay = data.curDay || 1; tahun = data.tahun || 2025; bulan = Math.min(12, Math.max(1, data.bulan || 8)); totalHari = data.totalHari; upFileName = data.upFileName || '';
+      $('inTahun').value = tahun; $('inBulan').value = bulan;
+      showPh(2); renderDay(); buildCal(); updateProg();
+      toast(`Sesi dilanjutkan — ${santri.length} santri, ${BLN[bulan]} ${tahun}`);
+    }
+    function clearSession() { clearLS(); santri = []; absen = {}; curDay = 1; upFileName = ''; $('resumeBanner').style.display = 'none'; rmFile(); toast('Data sesi sebelumnya dihapus'); saveToLS();/* Force save empty state */ }
+
+    /* ===== DROP ZONE ===== */
+    const dz = $('dz'), fi = $('fi');
+    dz.addEventListener('click', () => fi.click());
+    dz.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fi.click(); } });
+    dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
+    dz.addEventListener('dragleave', () => dz.classList.remove('over'));
+    dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('over'); if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]); });
+    fi.addEventListener('change', () => { if (fi.files.length) handleFile(fi.files[0]); });
+
+    function handleFile(f) {
+      const ext = f.name.split('.').pop().toLowerCase();
+      if (!['csv', 'xlsx', 'xls'].includes(ext)) { toast('Format tidak didukung. Gunakan .CSV atau .XLSX', 'err'); return; }
+      upFileName = f.name; const r = new FileReader();
+      r.onloadstart = () => { dz.style.opacity = '0.6'; };
+      r.onload = e => {
+        try {
+          let raw = ext === 'csv' ? parseCSV(e.target.result) : parseXLSX(e.target.result);
+          const mapped = mapData(raw); if (!mapped.length) { toast('File tidak mengandung data santri valid.', 'err'); return; }
+          if (mapped.length > 1000) { toast('⚠️ File terlalu banyak (>1000 santri). Berisiko tidak tersimpan.', 'warn'); }
+          santri = mapped; updateDropUI(f.name, mapped.length); toast(`${mapped.length} data santri berhasil dibaca`);
+        } catch (err) { console.error(err); toast('Gagal membaca file: ' + err.message, 'err'); }
+        finally { dz.style.opacity = '1'; }
+      };
+      r.onerror = () => { toast('Gagal membaca file', 'err'); dz.style.opacity = '1'; };
+      ext === 'csv' ? r.readAsText(f) : r.readAsArrayBuffer(f);
+    }
+
+    function parseCSV(txt) { const rows = []; const lines = txt.split(/\r?\n/).filter(l => l.trim()); for (const line of lines) { const f = []; let field = '', inQ = false; for (let i = 0; i < line.length; i++) { const c = line[i]; if (inQ) { if (c === '"' && line[i + 1] === '"') { field += '"'; i++; } else if (c === '"') inQ = false; else field += c; } else { if (c === '"') inQ = true; else if (c === ',') { f.push(field.trim()); field = ''; } else field += c; } } f.push(field.trim()); rows.push(f); } return rows; }
+    function parseXLSX(buf) { const wb = XLSX.read(buf, { type: 'array' }); return XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, defval: '' }); }
+    function mapData(rows) {
+      if (rows.length < 2) return []; const h = rows[0].map(v => String(v).trim().toUpperCase());
+      let iN = -1, iNa = -1, iP = -1;
+      h.forEach((v, i) => { if (v.includes('NIM') || v.includes('NO. INDUK') || v === 'NO') iN = i; if (v.includes('NAMA') || v.includes('NAME')) iNa = i; if (v.includes('PRODI') || v.includes('PROGRAM') || v.includes('JURUSAN') || v.includes('KELAS')) iP = i; });
+      if (iN === -1) iN = 0; if (iNa === -1) iNa = Math.min(1, h.length - 1); if (iP === -1) iP = Math.min(2, h.length - 1);
+      const res = []; for (let r = 1; r < rows.length; r++) { const row = rows[r]; const nim = String(row[iN] || '').trim(), nama = String(row[iNa] || '').trim(), prodi = String(row[iP] || '').trim(); if (nim || nama) res.push({ nim: nim || '-', nama: nama || '-', prodi: prodi || '-', key: nim || `idx_${r}` }); } return res;
+    }
+    function updateDropUI(name, cnt) {
+      if (cnt > 1000) { toast('⚠️ Banyak data, bisa lambat. Gunakan <1000 santri', 'warn'); }
+      dz.classList.add('ok');
+      $('dzC').innerHTML = `<div class="drop-ic"><i class="fas fa-file-check"></i></div><div class="drop-file"><i class="fas fa-file-alt"></i><span>${name}</span><span style="color:var(--accent-lt);font-weight:600">(${cnt} santri)</span><button class="drop-rm" onclick="event.stopPropagation();rmFile()" aria-label="Hapus file"><i class="fas fa-times-circle"></i></button></div>`;
+      $('fInfo').style.display = 'block'; $('fInfo').innerHTML = `<div class="chip" style="background:rgba(46,125,50,.12);color:var(--accent-lt)"><i class="fas fa-users"></i> ${cnt} Santri</div><div class="chip" style="background:rgba(201,168,76,.1);color:var(--gold-lt)"><i class="fas fa-file"></i> ${name}</div>`;
+      $('btnGen').disabled = false; $('genH').textContent = 'Siap generate'; $('genH').style.opacity = '1';
+    }
+    function rmFile() {
+      santri = []; absen = {}; upFileName = ''; fi.value = ''; dz.classList.remove('ok');
+      $('dzC').innerHTML = `<div class="drop-ic"><i class="fas fa-cloud-upload-alt"></i></div><div class="drop-txt">Seret file ke sini, atau <strong>klik untuk pilih file</strong><br>Format: <strong>.CSV</strong> atau <strong>.XLSX</strong></div>`;
+      $('fInfo').style.display = 'none'; $('btnGen').disabled = true; $('genH').textContent = 'Upload file terlebih dahulu'; $('genH').style.opacity = '.5';
+    }
+    function dlTemplate() {
+      const d = [['NIM', 'NAMA SANTRI', 'PRODI'], ['2024001', 'Ahmad Fauzan', 'Tafsir Hadits'], ['2024002', 'Muhammad Rizki', "Ilmu Al-Qur'an"], ['2024003', 'Abdullah Hakim', 'Fiqih'], ['2024004', 'Umar Faruq', 'Aqidah'], ['2024005', 'Bilal Ibrahim', 'Bahasa Arab']];
+      const wb = XLSX.utils.book_new(), ws = XLSX.utils.aoa_to_sheet(d); ws['!cols'] = [{ wch: 14 }, { wch: 30 }, { wch: 22 }];
+      XLSX.utils.book_append_sheet(wb, ws, 'Data Santri'); XLSX.writeFile(wb, 'Template_Data_Santri_Maslakunnidzom.csv'); toast('Template berhasil diunduh');
+    }
+
+    /* ===== START ===== */
+    function startAbsensi() {
+      if (!santri.length) { toast('Upload file terlebih dahulu', 'err'); return; }
+      tahun = Math.min(2100, Math.max(2020, parseInt($('inTahun').value) || 2025)); bulan = Math.min(12, Math.max(1, parseInt($('inBulan').value) || 8));
+      totalHari = dim(tahun, bulan); if (totalHari < 1) { toast('Tahun/bulan tidak valid', 'err'); return; } absen = {}; curDay = 1; saveToLS();
+      showPh(2); renderDay(); buildCal(); updateProg();
+      toast(`Sistem absensi siap — ${santri.length} santri, ${totalHari} hari`);
+    }
+
+    /* ===== CALENDAR ===== */
+    function isDayStarted(d) { const dd = absen[String(d)] || {}; return Object.values(dd).some(v => v); }
+    function isDayDone(d) { const dd = absen[String(d)] || {}; return Object.values(dd).filter(v => v).length === santri.length; }
+    function isWe(d) { const dn = dh(tahun, bulan, d); return dn === 'Minggu' || dn === 'Jumat'; }
+    function buildCal() {
+      const first = new Date(tahun, bulan - 1, 1).getDay(); let h = '<div class="cal">';
+      ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'].forEach(d => h += `<div class="cal-hd">${d}</div>`);
+      for (let i = 0; i < first; i++)h += '<div class="cal-d empty"></div>';
+      for (let d = 1; d <= totalHari; d++) {
+        const cur = d === curDay, started = isDayStarted(d), done = isDayDone(d), we = isWe(d);
+        let c = 'cal-d'; if (cur) c += ' cur'; if (done) c += ' done'; else if (started) c += ' partial'; if (we) c += ' we';
+        h += `<div class="${c}" onclick="goToDay(${d})">${d}</div>`;
+      }
+      h += '</div>'; $('calGrid').innerHTML = h;
+    }
+    function goToDay(d) { curDay = d; renderDay(); buildCal(); updateProg(); }
+    function changeDay(dir) { const n = curDay + dir; if (n >= 1 && n <= totalHari) { curDay = n; renderDay(); buildCal(); updateProg(); } }
+
+    /* ===== RENDER HARI ===== */
+    function renderDay() {
+      const dn = dh(tahun, bulan, curDay);
+      $('dayLabel').textContent = `Hari ke-${curDay} — ${dn}`;
+      $('dayDate').textContent = `${curDay} ${BLN[bulan]} ${tahun}`;
+      $('prevDay').disabled = curDay <= 1; $('nextDay').disabled = curDay >= totalHari;
+      const dd = absen[String(curDay)] || {};
+      let h = '';
+      santri.forEach((s, i) => {
+        const st = dd[s.key] || '';
+        /* Generate 5 tombol status */
+        let btns = '';
+        STATUS_LIST.forEach(stItem => {
+          const isOn = st === stItem.key;
+          btns += `<button class="st-btn ${stItem.cls}${isOn ? ' on' : ''}" onclick="mark(${i},'${stItem.key}',this)" aria-label="${stItem.label}">${stItem.key}</button>`;
+        });
+        h += `<div class="ab-row">
+            <div class="ab-no">${i + 1}</div>
+            <div class="ab-info">
+                <div class="ab-nim">${esc(s.nim)}</div>
+                <div class="ab-nama">${esc(s.nama)}</div>
+                <div class="ab-prodi">${esc(s.prodi)}</div>
+            </div>
+            <div class="ab-acts">${btns}</div>
+        </div>`;
+      });
+      $('abList').innerHTML = h;
+    }
+
+    /* ===== MARK + SAVE ===== */
+    function mark(idx, status, btn) {
+      const s = santri[idx]; const dk = String(curDay); if (!absen[dk]) absen[dk] = {};
+      if (absen[dk][s.key] === status) delete absen[dk][s.key]; else absen[dk][s.key] = status;
+      const row = btn.closest('.ab-acts'); row.querySelectorAll('.st-btn').forEach(b => b.classList.remove('on'));
+      if (absen[dk][s.key]) btn.classList.add('on');
+      buildCal(); updateProg(); debouncedSave();
+    }
+    function markAll(st) {
+      const dk = String(curDay); if (!absen[dk]) absen[dk] = {};
+      santri.forEach(s => { absen[dk][s.key] = st; });
+      renderDay(); buildCal(); updateProg(); debouncedSave();
+      const info = STATUS_LIST.find(s => s.key === st); toast(`Semua santri ditandai ${info ? info.label : st}`);
+    }
+    function resetDay() { delete absen[String(curDay)]; renderDay(); buildCal(); updateProg(); debouncedSave(); toast('Absensi hari ini direset'); }
+
+    /* ===== PROGRESS ===== */
+    function updateProg() {
+      let done = 0; for (let d = 1; d <= totalHari; d++)if (isDayDone(d)) done++;
+      const pct = totalHari ? Math.round(done / totalHari * 100) : 0;
+      $('progTxt').textContent = `${done} dari ${totalHari} hari selesai diabsen`;
+      $('progPct').textContent = pct + '%'; $('progFill').style.width = pct + '%';
+      /* Hitung per status */
+      const counts = {}; STATUS_LIST.forEach(s => counts[s.key] = 0);
+      for (let d = 1; d <= totalHari; d++) { const dd = absen[String(d)] || {}; Object.values(dd).forEach(v => { if (counts[v] !== undefined) counts[v]++; }); }
+      $('statRow').innerHTML = STATUS_LIST.map(s =>
+        `<div class="chip" style="background:${s.chip};color:${s.color}"><i class="fas ${s.icon}"></i> ${s.label}: ${counts[s.key]}</div>`
+      ).join('');
+    }
+
+    /* ===== GENERATE RESULT ===== */
+    function generateResult() {
+      let done = 0; for (let d = 1; d <= totalHari; d++)if (isDayDone(d)) done++;
+      if (done === 0) { toast('Belum ada hari yang diabsen.', 'warn'); return; }
+      saveToLS();/* Force save immediately before generate */
+      showPh(3); renderResultTable(); renderResultStats(); toast('Tabel absensi berhasil digenerate');
+    }
+    function getRekap(key) {
+      const r = {}; STATUS_LIST.forEach(s => r[s.key] = 0);
+      for (let d = 1; d <= totalHari; d++) { const v = (absen[String(d)] || {})[key]; if (r[v] !== undefined) r[v]++; }
+      return r;
+    }
+    function renderResultStats() {
+      const totals = {}; STATUS_LIST.forEach(s => totals[s.key] = 0);
+      santri.forEach(s => { const r = getRekap(s.key); STATUS_LIST.forEach(st => totals[st.key] += r[st.key]); });
+      let html = `<div class="chip" style="background:rgba(46,125,50,.12);color:var(--accent-lt)"><i class="fas fa-users"></i> ${santri.length} Santri</div>`;
+      STATUS_LIST.forEach(s => { html += `<div class="chip" style="background:${s.chip};color:${s.color}"><i class="fas ${s.icon}"></i> ${s.label}: ${totals[s.key]}</div>`; });
+      $('resStats').innerHTML = html;
+    }
+    function renderResultTable() {
+      const rekapKeys = STATUS_LIST.map(s => s.key);
+      let h = '<table class="ftbl"><thead>';
+      h += `<tr><th colspan="4" rowspan="2" style="vertical-align:middle">No</th>
+        <th colspan="1" rowspan="2" style="vertical-align:middle;text-align:left;padding-left:10px">NIM</th>
+        <th colspan="1" rowspan="2" style="vertical-align:middle;text-align:left;padding-left:10px">Nama Santri</th>
+        <th colspan="1" rowspan="2" style="vertical-align:middle;text-align:left;padding-left:10px">Prodi</th>
+        <th colspan="${totalHari}">TANGGAL</th>
+        <th colspan="5">REKAP</th></tr>`;
+      h += '<tr>';
+      for (let d = 1; d <= totalHari; d++) { const we = isWe(d); h += `<th${we ? ' style="color:#ff9800"' : ''}>${d}<br><span style="font-size:.54rem;font-weight:400;opacity:.7">${dh(tahun, bulan, d).substring(0, 3)}</span></th>`; }
+      STATUS_LIST.forEach(s => { h += `<th style="color:${s.color}">${s.key}</th>`; });
+      h += '</tr></thead><tbody>';
+      santri.forEach((s, i) => {
+        const rk = getRekap(s.key);
+        h += `<tr><td colspan="4">${i + 1}</td><td class="tl">${esc(s.nim)}</td><td class="tl">${esc(s.nama)}</td><td class="tl2">${esc(s.prodi)}</td>`;
+        for (let d = 1; d <= totalHari; d++) { const v = (absen[String(d)] || {})[s.key]; if (v) h += `<td class="c-${v.toLowerCase()}">${v}</td>`; else h += '<td></td>'; }
+        rekapKeys.forEach(k => { h += `<td class="c-rk" style="color:${STATUS_LIST.find(s => s.key === k).color}">${rk[k] || ''}</td>`; });
+        h += '</tr>';
+      });
+      h += '</tbody></table>'; $('tblWrap').innerHTML = h;
+    }
+
+    /* ===== DOWNLOAD XLSX ===== */
+    function dlXlsx() {
+      const nm = BLN[bulan]; const infoC = 4, rekapC = 5, totC = infoC + totalHari + rekapC;
+      const now = new Date();
+      const wStr = `Dicetak: ${now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} — ${now.toLocaleTimeString('id-ID')}`;
+      const emp = () => Array(totC).fill('');
+      const rows = [];
+      rows.push(emp());
+      const r2 = emp(); r2[1] = 'ABSENSI SANTRI PONPES MASLAKUNNIDZOM ANGKATAN 2024'; rows.push(r2);
+      const r3 = emp(); r3[1] = `Tahun: ${tahun}    Bulan: ${nm}`; rows.push(r3);
+      const r4 = emp(); r4[1] = wStr; rows.push(r4);
+      let srcRow = 4;
+      if (upFileName) { const rb = emp(); rb[1] = `Sumber Data: ${upFileName}`; rows.push(rb); srcRow = 5; }
+      rows.push(emp());
+      /* Header level 1 */
+      const h1 = ['No', 'NIM', 'NAMA SANTRI', 'PRODI'];
+      for (let d = 0; d < totalHari; d++)h1.push('TANGGAL');
+      h1.push('REKAP', '', '', '', ''); rows.push(h1);
+      /* Header level 2 */
+      const h2 = ['No', 'NIM', 'NAMA SANTRI', 'PRODI'];
+      for (let d = 1; d <= totalHari; d++)h2.push(`${d} (${dh(tahun, bulan, d).substring(0, 3)})`);
+      STATUS_LIST.forEach(s => h2.push(s.label)); rows.push(h2);
+      rows.push(emp());
+      /* Data santri */
+      santri.forEach((s, i) => {
+        const rk = getRekap(s.key); const row = [i + 1, s.nim, s.nama, s.prodi];
+        for (let d = 1; d <= totalHari; d++)row.push((absen[String(d)] || {})[s.key] || '');
+        STATUS_LIST.forEach(st => row.push(rk[st.key] || ''));
+        rows.push(row);
+      });
+      rows.push(emp());
+      /* Keterangan */
+      const rK = emp(); rK[1] = 'Keterangan:'; rows.push(rK);
+      const rK2 = emp(); rK2[1] = STATUS_LIST.map(s => `${s.key} = ${s.label}`).join('  |  '); rows.push(rK2);
+      rows.push(emp()); rows.push(emp()); rows.push(emp());
+      /* Tanda tangan */
+      const rS1 = emp(); rS1[totC - 2] = 'Ustadz/Ustadzah Pengampu'; rows.push(rS1);
+      rows.push(emp()); rows.push(emp());
+      const rS2 = emp(); rS2[totC - 2] = '________________________'; rows.push(rS2);
+      const rS3 = emp(); rS3[totC - 2] = 'NIP / NIK'; rows.push(rS3);
+
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+      ws['!cols'] = [{ wch: 5 }, { wch: 14 }, { wch: 30 }, { wch: 22 }];
+      for (let d = 1; d <= totalHari; d++)ws['!cols'].push({ wch: 6 });
+      ws['!cols'].push({ wch: 7 }, { wch: 7 }, { wch: 10 }, { wch: 7 }, { wch: 7 });
+      ws['!merges'] = [
+        { s: { r: 1, c: 1 }, e: { r: 1, c: totC - 1 } }, { s: { r: 2, c: 1 }, e: { r: 2, c: totC - 1 } }, { s: { r: 3, c: 1 }, e: { r: 3, c: totC - 1 } },
+        ...(upFileName ? [{ s: { r: 4, c: 1 }, e: { r: 4, c: totC - 1 } }] : []),
+        { s: { r: srcRow + 1, c: 4 }, e: { r: srcRow + 1, c: 3 + totalHari } },
+        { s: { r: srcRow + 1, c: 4 + totalHari }, e: { r: srcRow + 1, c: totC - 1 } },
+        { s: { r: srcRow + 1, c: 0 }, e: { r: srcRow + 2, c: 0 } }, { s: { r: srcRow + 1, c: 1 }, e: { r: srcRow + 2, c: 1 } },
+        { s: { r: srcRow + 1, c: 2 }, e: { r: srcRow + 2, c: 2 } }, { s: { r: srcRow + 1, c: 3 }, e: { r: srcRow + 2, c: 3 } },
+      ];
+      const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, `Absensi ${nm} ${tahun}`);
+      const fn = `Absensi_Santri_Maslakunnidzom_${nm}_${tahun}.xlsx`;
+      XLSX.writeFile(wb, fn); toast(`File "${fn}" berhasil diunduh`);
+    }
+
+    /* ===== INIT ===== */
+    (function () { const n = new Date(); $('inTahun').value = n.getFullYear(); $('inBulan').value = n.getMonth() + 1; checkResume(); })();
+  </script>
+</body>
+
+</html>
