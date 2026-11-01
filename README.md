@@ -2,6 +2,8 @@
 
 Aplikasi absensi santri berbasis web untuk administrasi harian di Ponpes Maslakunnidzom. Project ini dibuat sebagai single-page app menggunakan HTML, CSS, dan JavaScript, tanpa framework backend.
 
+Check out: https://onlineabsensi-maslakunnidzom.netlify.app/
+
 ## Fitur utama
 - Input dan monitoring kehadiran santri per hari
 - Status kehadiran: Hadir, Sakit, Izin, Alpha, Terlambat
